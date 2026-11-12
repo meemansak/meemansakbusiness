@@ -18,7 +18,7 @@ function setupScrollMotion(reducedMotion) {
     const toggle = card.querySelector(".expert-toggle");
     toggle.hidden = false;
     toggle.addEventListener("click", () => {
-      if (!deck.hasAttribute("data-dealt")) return;
+      if (!deck.hasAttribute("data-dealt") && !deck.contains(document.activeElement)) return;
       const flipped = card.toggleAttribute("data-flipped");
       toggle.setAttribute("aria-pressed", String(flipped));
     });
@@ -95,14 +95,14 @@ function setupPointerEffects(reducedMotion) {
 
   function clearControl() {
     if (!currentControl) return;
-    for (const key of ["--pull-x", "--pull-y", "--tilt-x", "--tilt-y"]) {
+    for (const key of ["--pull-x", "--pull-y"]) {
       currentControl.style.removeProperty(key);
     }
     currentControl = undefined;
   }
 
   function updatePointer({ x, y, target }, time) {
-    const control = target.closest(".pill, .film-cover");
+    const control = target.closest(".pill, .session-link, .expert-toggle, .workflow-controls button");
     if (control !== currentControl) clearControl();
     if (control) {
       const bounds = control.getBoundingClientRect();
@@ -110,8 +110,6 @@ function setupPointerEffects(reducedMotion) {
       const dy = clamp((y - bounds.top) / bounds.height - .5, -.5, .5);
       control.style.setProperty("--pull-x", (dx * 13) + "px");
       control.style.setProperty("--pull-y", (dy * 10) + "px");
-      control.style.setProperty("--tilt-x", (-dy * 12) + "deg");
-      control.style.setProperty("--tilt-y", (dx * 12) + "deg");
       currentControl = control;
     }
     const inSpotlight = spotlight.contains(target);
@@ -165,7 +163,6 @@ function setupPointerEffects(reducedMotion) {
 
   window.addEventListener("pointermove", (event) => {
     if (reducedMotion.matches || !pointer.matches || event.pointerType === "touch" || !(event.target instanceof Element)) return;
-    if (event.target.closest(".video-dialog")) return;
     sample = { x: event.clientX, y: event.clientY, target: event.target };
     if (!pending) pending = requestAnimationFrame(draw);
   }, { passive: true });
@@ -180,65 +177,7 @@ function setupPointerEffects(reducedMotion) {
   resize();
 }
 
-function setupVideoDialogs(reducedMotion) {
-  const dialog = document.querySelector(".video-dialog");
-  if (typeof dialog.showModal !== "function") return;
-  const title = dialog.querySelector("#video-title");
-  const stage = dialog.querySelector(".video-stage");
-  const close = dialog.querySelector(".video-close");
-  const external = dialog.querySelector(".video-external");
-  let trigger;
-  let closeTimer;
-
-  for (const link of document.querySelectorAll("a[data-video]")) {
-    link.setAttribute("aria-haspopup", "dialog");
-    link.addEventListener("click", (event) => {
-      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-      event.preventDefault();
-      trigger = link;
-      title.textContent = link.dataset.title;
-      external.href = link.href;
-      const player = document.createElement("iframe");
-      player.title = link.dataset.title;
-      player.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
-      player.allowFullscreen = true;
-      player.referrerPolicy = "strict-origin-when-cross-origin";
-      player.src = "https://www.youtube-nocookie.com/embed/" + link.dataset.video + "?autoplay=1&playsinline=1&rel=0";
-      stage.replaceChildren(player);
-      dialog.showModal();
-    });
-  }
-
-  function dismiss() {
-    if (!dialog.open || dialog.hasAttribute("data-closing")) return;
-    stage.replaceChildren();
-    if (reducedMotion.matches) {
-      dialog.close();
-      return;
-    }
-    dialog.setAttribute("data-closing", "");
-    closeTimer = window.setTimeout(() => dialog.close(), 230);
-  }
-
-  close.addEventListener("click", dismiss);
-  dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) dismiss();
-  });
-  dialog.addEventListener("cancel", (event) => {
-    event.preventDefault();
-    dismiss();
-  });
-  dialog.addEventListener("close", () => {
-    clearTimeout(closeTimer);
-    stage.replaceChildren();
-    dialog.removeAttribute("data-closing");
-    trigger?.focus({ preventScroll: true });
-    trigger = undefined;
-  });
-}
-
 export function setupMotion(reducedMotion) {
   setupScrollMotion(reducedMotion);
   setupPointerEffects(reducedMotion);
-  setupVideoDialogs(reducedMotion);
 }

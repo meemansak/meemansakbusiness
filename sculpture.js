@@ -37,10 +37,10 @@ function makeEnvironment(renderer) {
   canvas.height = 256;
   const paint = canvas.getContext("2d");
   const backdrop = paint.createLinearGradient(0, 0, 0, 256);
-  backdrop.addColorStop(0, "#f9e9ff");
-  backdrop.addColorStop(.31, "#c0a4c5");
-  backdrop.addColorStop(.58, "#39233d");
-  backdrop.addColorStop(1, "#bca0bf");
+  backdrop.addColorStop(0, "#f5f1ec");
+  backdrop.addColorStop(.31, "#c5b4a1");
+  backdrop.addColorStop(.58, "#392e23");
+  backdrop.addColorStop(1, "#c2b09c");
   paint.fillStyle = backdrop;
   paint.fillRect(0, 0, 512, 256);
 
@@ -48,7 +48,7 @@ function makeEnvironment(renderer) {
     [7, 33, 142, 72, "#ffffff"],
     [202, 70, 88, 18, "#ffe2ce"],
     [345, 41, 111, 58, "#fff9ff"],
-    [280, 181, 109, 22, "#d8b4f1"],
+    [280, 181, 109, 22, "#d6c8b9"],
   ]) {
     paint.fillStyle = color;
     paint.fillRect(x, y, w, h);
@@ -82,10 +82,10 @@ export function mountSculpture(motion) {
   scene.add(group);
   const geometry = makeFrame();
   const layout = [
-    [-.84, -.42, -.48, .5, -.22, -.4, 0x9a68b4, 1.10],
-    [.94, .19, -.61, -.38, -.48, -.49, 0xa962a4, .95],
-    [-.44, .63, .18, -.35, .36, .40, 0xc5a0e0, .98],
-    [.49, -.42, .82, .44, -.24, -.52, 0xe3b6ca, 1.04],
+    [-.84, -.42, -.48, .5, -.22, -.4, 0x98836c, 1.10],
+    [.94, .19, -.61, -.38, -.48, -.49, 0x96816a, .95],
+    [-.44, .63, .18, -.35, .36, .40, 0xc7b5a3, .98],
+    [.49, -.42, .82, .44, -.24, -.52, 0xd5c7b8, 1.04],
     [.56, .83, .53, .26, -.34, .61, 0xf5dac9, .80],
   ];
   const frames = layout.map(([x, y, z, rx, ry, rz, color, size]) => {
@@ -103,11 +103,11 @@ export function mountSculpture(motion) {
     group.add(mesh);
     return mesh;
   });
-  scene.add(new THREE.HemisphereLight(0xfff4ff, 0xc994b5, 1.3));
+  scene.add(new THREE.HemisphereLight(0xfaf8f7, 0xbdaa96, 1.3));
   const key = new THREE.DirectionalLight(0xfff7ee, 2);
   key.position.set(-3, 6, 4);
   scene.add(key);
-  const rim = new THREE.DirectionalLight(0xffcffa, 1.2);
+  const rim = new THREE.DirectionalLight(0xeae2d9, 1.2);
   rim.position.set(4, 1, -4);
   scene.add(rim);
 

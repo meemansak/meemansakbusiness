@@ -1,4 +1,4 @@
-import { setupMotion } from "./motion.js?v=2";
+import { setupMotion } from "./motion.js?v=3";
 
 // Set the session fees when they are confirmed.
 const settings = {
@@ -113,7 +113,7 @@ let startingScene = false;
 function startScene() {
   if (startingScene || reducedMotion.matches) return;
   startingScene = true;
-  import("./sculpture.js")
+  import("./sculpture.js?v=3")
     .then(({ mountSculpture }) => mountSculpture(reducedMotion))
     .catch(() => { startingScene = false; });
 }
