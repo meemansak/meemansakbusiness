@@ -77,14 +77,19 @@ function setupPointerEffects(reducedMotion) {
   canvas.setAttribute("aria-hidden", "true");
   const context = canvas.getContext("2d");
   if (!context) return;
-  document.body.append(canvas);
+  const lens = document.createElement("div");
+  lens.className = "pointer-lens";
+  lens.setAttribute("aria-hidden", "true");
+  document.body.append(lens, canvas);
 
   const points = [];
-  const lifetime = 410;
+  const lifetime = 580;
   let scale = 1;
   let pending = 0;
   let sample;
   let currentControl;
+  let currentSurface;
+  let wake;
 
   function resize() {
     scale = Math.min(devicePixelRatio || 1, 1.25);
@@ -102,7 +107,7 @@ function setupPointerEffects(reducedMotion) {
   }
 
   function updatePointer({ x, y, target }, time) {
-    const control = target.closest(".pill, .session-link, .expert-toggle, .workflow-controls button");
+    const control = target.closest("a:not(.skip), button");
     if (control !== currentControl) clearControl();
     if (control) {
       const bounds = control.getBoundingClientRect();
@@ -112,6 +117,17 @@ function setupPointerEffects(reducedMotion) {
       control.style.setProperty("--pull-y", (dy * 10) + "px");
       currentControl = control;
     }
+    const surface = target.closest(".studio, .session, .expert-card, .portrait, .workflow, h1, h2, h3, input, textarea, select");
+    if (surface !== currentSurface) {
+      currentSurface?.removeAttribute("data-pointer-active");
+      surface?.setAttribute("data-pointer-active", "");
+      currentSurface = surface;
+    }
+    if (surface) {
+      const bounds = surface.getBoundingClientRect();
+      surface.style.setProperty("--hover-x", (x - bounds.left) + "px");
+      surface.style.setProperty("--hover-y", (y - bounds.top) + "px");
+    }
     const inSpotlight = spotlight.contains(target);
     spotlight.classList.toggle("has-spotlight", inSpotlight);
     if (inSpotlight) {
@@ -120,9 +136,14 @@ function setupPointerEffects(reducedMotion) {
       title.style.setProperty("--glow-y", (y - bounds.top) + "px");
     }
     const last = points.at(-1);
-    if (last && (time - last.time > 95 || Math.hypot(x - last.x, y - last.y) > 180)) points.length = 0;
-    points.push({ x, y, time });
-    if (points.length > 25) points.shift();
+    const dx = last ? x - last.x : 0;
+    const dy = last ? y - last.y : 0;
+    const distance = Math.hypot(dx, dy);
+    if (last && (time - last.time > 110 || distance > 180)) points.length = 0;
+    const speed = points.length ? clamp(distance / Math.max(12, time - last.time), 0, 3) : 0;
+    points.push({ x, y, time, nx: distance ? -dy / distance : 0, ny: distance ? dx / distance : 0, speed });
+    if (points.length > 34) points.shift();
+    if (!wake || distance > 180) wake = { x, y, angle: 0 };
   }
 
   function draw(time) {
@@ -131,31 +152,57 @@ function setupPointerEffects(reducedMotion) {
     sample = undefined;
     while (points.length && time - points[0].time > lifetime) points.shift();
     context.clearRect(0, 0, canvas.width / scale, canvas.height / scale);
-    context.lineCap = "round";
-    context.shadowColor = "#7896ff";
-    context.shadowBlur = 5;
-
-    for (let i = 1; i < points.length; i++) {
-      const previous = points[i - 1];
-      const point = points[i];
-      const life = 1 - (time - previous.time) / lifetime;
-      const before = points[i - 2] || previous;
-      context.beginPath();
-      context.moveTo((before.x + previous.x) / 2, (before.y + previous.y) / 2);
-      context.quadraticCurveTo(previous.x, previous.y, (previous.x + point.x) / 2, (previous.y + point.y) / 2);
-      context.strokeStyle = "rgba(60, 105, 255, " + (life * .58) + ")";
-      context.lineWidth = .8 + life * 2.6;
-      context.stroke();
+    const tip = points.at(-1);
+    if (!tip) {
+      lens.style.opacity = "0";
+      wake = undefined;
+      return;
     }
+    wake.x += (tip.x - wake.x) * .28;
+    wake.y += (tip.y - wake.y) * .28;
+    if (tip.speed > .18) {
+      const angle = Math.atan2(-tip.nx, tip.ny);
+      wake.angle += Math.atan2(Math.sin(angle - wake.angle), Math.cos(angle - wake.angle)) * .22;
+    }
+    const strength = 1 - smooth((time - tip.time) / lifetime);
+    lens.style.transform = `translate3d(${wake.x}px, ${wake.y}px, 0) rotate(${wake.angle}rad) scaleX(${1 + tip.speed * .32 * strength})`;
+    lens.style.opacity = String(strength * (.44 + tip.speed * .16));
+    context.lineCap = "round";
+    const ribbon = points.map(point => {
+      const age = time - point.time;
+      const life = 1 - age / lifetime;
+      const wave = Math.sin(point.time * .026 + age * .008) * (5 + point.speed * 9) * Math.sin(Math.PI * life);
+      return { x: point.x + point.nx * wave, y: point.y + point.ny * wave, life, speed: point.speed };
+    });
+    for (const [width, alpha] of [[27, .07], [13, .12], [4, .23]]) {
+      for (let index = 1; index < ribbon.length; index++) {
+        const point = ribbon[index];
+        const previous = ribbon[index - 1];
+        const before = ribbon[index - 2] || previous;
+        context.beginPath();
+        context.moveTo((before.x + previous.x) / 2, (before.y + previous.y) / 2);
+        context.quadraticCurveTo(previous.x, previous.y, (previous.x + point.x) / 2, (previous.y + point.y) / 2);
+        context.strokeStyle = `rgba(72, 112, 255, ${point.life ** 2 * alpha})`;
+        context.lineWidth = Math.max(.6, width * point.life * (1 + point.speed * .22));
+        context.stroke();
+      }
+    }
+    pending = requestAnimationFrame(draw);
+  }
 
-    if (points.length) pending = requestAnimationFrame(draw);
+  function clearHover() {
+    clearControl();
+    currentSurface?.removeAttribute("data-pointer-active");
+    currentSurface = undefined;
+    spotlight.classList.remove("has-spotlight");
   }
 
   function reset() {
-    clearControl();
-    spotlight.classList.remove("has-spotlight");
+    clearHover();
     points.length = 0;
     sample = undefined;
+    wake = undefined;
+    lens.style.opacity = "0";
     if (pending) cancelAnimationFrame(pending);
     pending = 0;
     context.clearRect(0, 0, canvas.width / scale, canvas.height / scale);
@@ -169,11 +216,9 @@ function setupPointerEffects(reducedMotion) {
   window.addEventListener("resize", resize, { passive: true });
   window.addEventListener("blur", reset);
   document.documentElement.addEventListener("pointerleave", reset);
-  document.addEventListener("scroll", () => {
-    clearControl();
-    spotlight.classList.remove("has-spotlight");
-  }, { passive: true });
+  document.addEventListener("scroll", clearHover, { passive: true });
   reducedMotion.addEventListener("change", reset);
+  pointer.addEventListener("change", reset);
   resize();
 }
 

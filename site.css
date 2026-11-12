@@ -33,7 +33,7 @@ section[id]{scroll-margin-top:36px}
 .hero-panel{position:relative;isolation:isolate;min-height:clamp(500px,44vw,690px);display:flex;align-items:center;overflow:hidden;border:1px solid #e4dad0;border-radius:var(--radius);background:radial-gradient(ellipse at 72% 43%,#f3efea 0%,#e9e1d8 38%,transparent 77%),linear-gradient(114deg,#f0e9e6,#e6ddd3 70%,#dbcfc1)}
 .hero-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(90deg,#75624d14 1px,transparent 1px),linear-gradient(#75624d14 1px,transparent 1px);background-size:54px 54px;mask-image:linear-gradient(105deg,transparent 10%,#000 88%)}
 .hero-content{z-index:1;position:relative;padding:clamp(28px,5vw,85px);pointer-events:none}
-.hero-content a{pointer-events:auto}
+.hero-content :is(h1,a){pointer-events:auto}
 .eyebrow{font-size:.69rem;font-weight:780;letter-spacing:.145em;text-transform:uppercase;line-height:1.35}
 .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#917c65;vertical-align:.08em;margin-right:.45rem}
 h1{font-size:clamp(47px,6.35vw,118px);letter-spacing:-.075em;line-height:.91;margin:23px 0 24px}
@@ -228,8 +228,18 @@ h2 em{font-size:1.13em;color:#77644f}
 }
 
 /* Pointer controls */
-.pointer-ink{position:fixed;inset:0;z-index:15;pointer-events:none;width:100%;height:100%}
-.pill,.session-link,.expert-toggle>span,.workflow-controls button{translate:var(--pull-x,0) var(--pull-y,0)}
+.pointer-filter{position:absolute;pointer-events:none}
+.pointer-ink{position:fixed;inset:0;z-index:15;pointer-events:none;width:100%;height:100%;filter:blur(2px)}
+.pointer-lens{position:fixed;top:-68px;left:-84px;width:168px;height:136px;z-index:14;pointer-events:none;opacity:0;border-radius:43% 57% 51% 49% / 52% 40% 60% 48%;mask-image:radial-gradient(ellipse,#000 12%,#000c 37%,transparent 69%);background:radial-gradient(ellipse at 62% 39%,#b8c8ff33,transparent 65%);backdrop-filter:blur(5px);backdrop-filter:url(#cursor-refraction) blur(5px)}
+:is(.studio,.session){position:relative}
+:is(.studio,.session,.expert-card,.workflow)::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(circle 140px at var(--hover-x,50%) var(--hover-y,50%),#d7a87939,transparent)}
+:is(.studio,.session,.expert-card,.workflow)[data-pointer-active]::after{opacity:1}
+.expert-card::after{border-radius:clamp(13px,1.6vw,22px)}
+.portrait img{transition:transform .65s var(--ease);transform-origin:var(--hover-x,50%) var(--hover-y,50%)}
+.portrait[data-pointer-active] img{transform:scale(1.055)}
+:is(h1,h2,h3)[data-pointer-active]{text-shadow:0 0 18px #bd895870}
+.inquiry :is(input,textarea,select)[data-pointer-active]{border-color:#976c49}
+.motion-active :is(a:not(.skip),button:not(.expert-toggle),.expert-toggle>span){translate:var(--pull-x,0px) var(--pull-y,0px)}
 .pill{transition:background .25s,color .25s,border-color .25s,translate .26s var(--ease),box-shadow .25s}
 .pill:hover,.pill:focus-visible{box-shadow:0 5px 18px #98836c2e}
 .footer{padding-block:30px 39px}
@@ -260,7 +270,7 @@ h2 em{font-size:1.13em;color:#77644f}
   .expert-card{min-height:220px}
 }
 @media(prefers-reduced-motion:reduce){
-  .pointer-ink{display:none}
+  .pointer-ink,.pointer-lens{display:none}
   .motion-active .ink-path path{stroke-dashoffset:0}
-  .pill,.session-link,.expert-toggle>span,.workflow-controls button{translate:none}
+  .motion-active :is(a:not(.skip),button:not(.expert-toggle),.expert-toggle>span){translate:none}
 }
