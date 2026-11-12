@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="One-on-one consulting with Meemansak Bharti for creative business, filmmaking and post-production, and practical AI automation.">
+  <meta name="theme-color" content="#f8f5ef">
+  <title>Meemansak Bharti — Creative Business & AI Consulting</title>
+  <link rel="stylesheet" href="./site.css">
+  <link rel="preload" href="./dm-sans.woff2" as="font" type="font/woff2" crossorigin>
+  <script type="module" src="./site.js"></script>
+</head>
+<body id="top">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header shell">
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Meemansak Bharti</a>
+    <button type="button" class="menu-button pill" hidden aria-expanded="false" aria-controls="navigation">Menu <span aria-hidden="true">+</span></button>
+    <nav id="navigation" aria-label="Main navigation">
+      <a href="#services">Services</a><a href="#approach">Approach</a><a href="#sessions">Sessions</a>
+    </nav>
+    <a class="pill header-cta" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main id="main">
+    <section class="hero shell" aria-labelledby="hero-title">
+      <div class="hero-panel">
+        <div class="hero-grid" aria-hidden="true"></div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="art-shadow"></div>
+          <div class="art-fallback"><i></i><i></i><i></i></div>
+          <canvas id="hero-canvas"></canvas>
+        </div>
+        <div class="hero-content">
+          <p class="eyebrow hero-eyebrow"><span class="dot"></span> Independent consulting</p>
+          <h1 id="hero-title"><span>Build what’s</span><em>next.</em></h1>
+          <p class="hero-description">One-on-one strategy for creators and small teams building a creative business, a better production workflow, or their first AI system.</p>
+          <a class="pill pill-dark" href="#sessions">Explore sessions <span aria-hidden="true">↗</span></a>
+        </div>
+        <button type="button" class="art-control" id="art-control" hidden aria-label="Rotate the 3D sculpture" title="Rotate the sculpture"><span aria-hidden="true">⟳</span></button>
+      </div>
+      <div class="hero-index">
+        <span>Creative business <b>·</b> Post-production <b>·</b> AI</span>
+        <a href="#services">Scroll to explore <span aria-hidden="true">↓</span></a>
+      </div>
+    </section>
+
+    <section class="section shell" id="services" aria-labelledby="services-title">
+      <div class="section-heading" data-reveal="left">
+        <p class="eyebrow"><span class="dot"></span> Services</p>
+        <h2 id="services-title">Where I can <em>help.</em></h2>
+      </div>
+      <div class="services-layout">
+        <div class="services-list" data-reveal="left">
+          <details name="services" data-art="business" open>
+            <summary><span>Creative business</span><span class="expand" aria-hidden="true"></span></summary>
+            <div class="service-copy">
+              <p>Set up an agency or turn a creator account into a clearer business. Work through positioning, your first offer, a content plan, or a realistic way to find clients.</p>
+              <a class="text-link" data-focus="Creative business" href="#sessions">Find a session <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+          <details name="services" data-art="production">
+            <summary><span>Film &amp; post-production</span><span class="expand" aria-hidden="true"></span></summary>
+            <div class="service-copy">
+              <p>Build a production or editing service around the work you want to do. Plan the handoff from brief to shoot, edit, review, and delivery.</p>
+              <a class="text-link" data-focus="Film &amp; post-production" href="#sessions">Find a session <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+          <details name="services" data-art="ai">
+            <summary><span>AI &amp; automation</span><span class="expand" aria-hidden="true"></span></summary>
+            <div class="service-copy">
+              <p>Find the repetitive steps in your work, then map practical automations for intake, follow-ups, or outreach drafts. Start with free or low-cost tools where they fit.</p>
+              <a class="text-link" data-focus="AI &amp; automation" href="#sessions">Find a session <span aria-hidden="true">↗</span></a>
+            </div>
+          </details>
+        </div>
+        <figure class="service-art" data-mode="business" data-reveal="right" aria-hidden="true">
+          <div class="tile-grid"></div>
+          <div class="service-forms"><i></i><i></i><i></i></div>
+          <figcaption>Offer <span>→</span> Audience <span>→</span> First client</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="approach" id="approach" aria-labelledby="approach-title">
+      <div class="approach-inner shell">
+        <div class="approach-copy" data-reveal="left">
+          <p class="eyebrow"><span class="dot"></span> How we’ll work</p>
+          <h2 id="approach-title">Start with<br>one <em>workflow.</em></h2>
+          <p>Bring a decision, a process, or a project that’s stuck. We’ll map what happens today, decide what can change, and choose the first thing to test.</p>
+        </div>
+        <div class="workflow" data-reveal="right">
+          <div class="workflow-scene" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="workflow-content">
+            <p class="eyebrow">Example · Client intake</p>
+            <div class="workflow-controls" role="group" aria-label="Example workflow steps" hidden>
+              <button type="button" aria-pressed="true" data-step="0">Input</button>
+              <button type="button" aria-pressed="false" data-step="1">AI draft</button>
+              <button type="button" aria-pressed="false" data-step="2">Review</button>
+            </div>
+            <div class="workflow-result" aria-live="polite">
+              <h3>A new inquiry comes in.</h3>
+              <p>Capture the goal, budget, timeline, and any missing information in one place.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell" id="sessions" aria-labelledby="sessions-title">
+      <div class="section-heading split" data-reveal="up">
+        <div><p class="eyebrow"><span class="dot"></span> One-on-one consulting</p><h2 id="sessions-title">Choose a <em>session.</em></h2></div>
+        <p>Start with a discovery call or bring a specific challenge to a paid working session.</p>
+      </div>
+      <div class="session-grid">
+        <article class="session" data-reveal="up">
+          <p class="eyebrow">Short introduction</p>
+          <h3>Discovery call</h3>
+          <p>A lower-cost first conversation to discuss your goal and find the right next step.</p>
+          <p class="fee" data-fee="Discovery call">Fee to be announced</p>
+          <a class="session-link" href="#contact" data-session="Discovery call">Select discovery <span aria-hidden="true">↗</span></a>
+        </article>
+        <article class="session session-feature" data-reveal="up">
+          <p class="eyebrow">60 minutes</p>
+          <h3>Strategy session</h3>
+          <p>Bring one question or bottleneck. We’ll work through your options and decide what to do next.</p>
+          <p class="fee" data-fee="Strategy session">Fee to be announced</p>
+          <a class="session-link" href="#contact" data-session="Strategy session">Select strategy <span aria-hidden="true">↗</span></a>
+        </article>
+        <article class="session" data-reveal="up">
+          <p class="eyebrow">120 minutes</p>
+          <h3>Deep dive</h3>
+          <p>Work through a bigger challenge and map out an offer, production process, or automation.</p>
+          <p class="fee" data-fee="Deep dive">Fee to be announced</p>
+          <a class="session-link" href="#contact" data-session="Deep dive">Select deep dive <span aria-hidden="true">↗</span></a>
+        </article>
+      </div>
+    </section>
+
+    <section class="contact shell" id="contact" aria-labelledby="contact-title">
+      <div class="contact-panel">
+        <div class="contact-copy" data-reveal="left">
+          <p class="eyebrow"><span class="dot"></span> Inquiries</p>
+          <h2 id="contact-title">What are you <em>building?</em></h2>
+          <p>Tell me where you are, what’s in the way, and what you’d like to get out of a session.</p>
+        </div>
+        <form id="inquiry" class="inquiry" data-reveal="right">
+          <div class="field-row">
+            <label>Your name<input name="name" autocomplete="name" maxlength="100" required></label>
+            <label>Your email<input name="email" type="email" autocomplete="email" maxlength="160" required></label>
+          </div>
+          <div class="field-row">
+            <label>Session<select name="session"><option value="">Still deciding</option><option>Discovery call</option><option>Strategy session</option><option>Deep dive</option></select></label>
+            <label>Focus<select name="focus"><option value="">Select a focus</option><option>Creative business</option><option>Film &amp; post-production</option><option>AI &amp; automation</option><option>Something else</option></select></label>
+          </div>
+          <label>What would you like to work on?<textarea name="brief" rows="3" maxlength="1600" required placeholder="A little about your goal or project"></textarea></label>
+          <button class="pill pill-dark" type="submit" hidden>Copy inquiry draft <span aria-hidden="true">↗</span></button>
+          <p class="form-note">Booking opens after the preview. You can prepare a draft here in the meantime.</p>
+          <p class="form-status" role="status" hidden></p>
+          <textarea class="draft" aria-label="Inquiry draft" rows="7" readonly hidden></textarea>
+          <noscript><p class="form-note">Enable JavaScript to prepare an inquiry draft.</p></noscript>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer shell">
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Meemansak Bharti</a>
+    <p>Creative business · Post-production · AI</p>
+    <a href="#top">Back to top <span aria-hidden="true">↑</span></a>
+  </footer>
+</body>
+</html>
