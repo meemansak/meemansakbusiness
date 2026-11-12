@@ -70,134 +70,102 @@ function setupScrollMotion(reducedMotion) {
 
 function setupPointerEffects(reducedMotion) {
   const pointer = matchMedia("(any-pointer: fine)");
-  const spotlight = document.querySelector("[data-spotlight]");
-  const title = spotlight.querySelector(".glow-title");
-  const lenses = Array.from({ length: 3 }, () => {
-    const lens = document.createElement("div");
-    lens.className = "pointer-lens";
-    lens.setAttribute("aria-hidden", "true");
-    document.body.append(lens);
-    return lens;
-  });
-  const titleLight = title.querySelector(".glow-title-light");
-  const titleHalo = titleLight.cloneNode(true);
-  titleHalo.classList.add("glow-title-halo");
-  title.append(titleHalo);
+  const headings = [...document.querySelectorAll("main h1, main h2")];
+  for (const heading of headings) {
+    heading.querySelectorAll(".glow-title-light").forEach(layer => layer.remove());
+    const sheen = document.createElement("span");
+    sheen.className = "heading-sheen";
+    sheen.setAttribute("aria-hidden", "true");
+    sheen.innerHTML = heading.innerHTML;
+    sheen.querySelectorAll("[id]").forEach(element => element.removeAttribute("id"));
+    heading.classList.add("reactive-heading");
+    heading.append(sheen);
+  }
 
-  const points = [];
-  const lifetime = 580;
+  const springs = new Map();
+  let activeHeading;
+  let lastPointer;
   let pending = 0;
-  let sample;
-  let currentControl;
-  let currentSurface;
-  let wake;
+  let lastFrame = 0;
 
-  function clearControl() {
-    if (!currentControl) return;
-    for (const key of ["--pull-x", "--pull-y"]) {
-      currentControl.style.removeProperty(key);
-    }
-    currentControl = undefined;
-  }
-
-  function updatePointer({ x, y, target }, time) {
-    const control = target.closest("a:not(.skip), button");
-    if (control !== currentControl) clearControl();
-    if (control) {
-      const bounds = control.getBoundingClientRect();
-      const dx = clamp((x - bounds.left) / bounds.width - .5, -.5, .5);
-      const dy = clamp((y - bounds.top) / bounds.height - .5, -.5, .5);
-      control.style.setProperty("--pull-x", (dx * 13) + "px");
-      control.style.setProperty("--pull-y", (dy * 10) + "px");
-      currentControl = control;
-    }
-    const surface = target.closest(".studio, .session, .expert-card, .portrait, .workflow, h1, h2, h3, input, textarea, select");
-    if (surface !== currentSurface) {
-      currentSurface?.removeAttribute("data-pointer-active");
-      surface?.setAttribute("data-pointer-active", "");
-      currentSurface = surface;
-    }
-    if (surface) {
-      const bounds = surface.getBoundingClientRect();
-      surface.style.setProperty("--hover-x", (x - bounds.left) + "px");
-      surface.style.setProperty("--hover-y", (y - bounds.top) + "px");
-    }
-    const inSpotlight = spotlight.contains(target);
-    spotlight.classList.toggle("has-spotlight", inSpotlight);
-    if (inSpotlight) {
-      const bounds = title.getBoundingClientRect();
-      title.style.setProperty("--glow-x", (x - bounds.left) + "px");
-      title.style.setProperty("--glow-y", (y - bounds.top) + "px");
-    }
-    const last = points.at(-1);
-    const dx = last ? x - last.x : 0;
-    const dy = last ? y - last.y : 0;
-    const distance = Math.hypot(dx, dy);
-    if (last && (time - last.time > 110 || distance > 180)) points.length = 0;
-    const speed = points.length ? clamp(distance / Math.max(12, time - last.time), 0, 3) : 0;
-    points.push({ x, y, time, nx: distance ? -dy / distance : 0, ny: distance ? dx / distance : 0, speed });
-    if (points.length > 34) points.shift();
-    if (!wake || distance > 180) wake = { x, y, angle: 0 };
-  }
-
-  function draw(time) {
+  function frame(time) {
     pending = 0;
-    if (sample) updatePointer(sample, time);
-    sample = undefined;
-    while (points.length && time - points[0].time > lifetime) points.shift();
-    const tip = points.at(-1);
-    if (!tip) {
-      for (const lens of lenses) lens.style.opacity = "0";
-      wake = undefined;
-      return;
+    const step = lastFrame ? Math.min(2, (time - lastFrame) / 16.67) : 1;
+    lastFrame = time;
+    for (const [element, spring] of springs) {
+      spring.vx = (spring.vx - spring.x * .18 * step) * Math.pow(.7, step);
+      spring.vy = (spring.vy - spring.y * .18 * step) * Math.pow(.7, step);
+      spring.x = clamp(spring.x + spring.vx * step, -3, 3);
+      spring.y = clamp(spring.y + spring.vy * step, -3, 3);
+      element.style.setProperty("--nudge-x", spring.x.toFixed(3) + "px");
+      element.style.setProperty("--nudge-y", spring.y.toFixed(3) + "px");
+      element.style.setProperty("--nudge-angle", (spring.x * .15).toFixed(3) + "deg");
+      if (Math.abs(spring.x) + Math.abs(spring.y) + Math.abs(spring.vx) + Math.abs(spring.vy) < .025) {
+        for (const key of ["--nudge-x", "--nudge-y", "--nudge-angle"]) element.style.removeProperty(key);
+        element.classList.remove("pointer-spring");
+        springs.delete(element);
+      }
     }
-    wake.x += (tip.x - wake.x) * .28;
-    wake.y += (tip.y - wake.y) * .28;
-    if (tip.speed > .18) {
-      const angle = Math.atan2(-tip.nx, tip.ny);
-      wake.angle += Math.atan2(Math.sin(angle - wake.angle), Math.cos(angle - wake.angle)) * .22;
-    }
-    const strength = 1 - smooth((time - tip.time) / lifetime);
-    lenses.forEach((lens, index) => {
-      const delayed = points[Math.max(0, points.length - 1 - index * 4)];
-      const age = time - delayed.time;
-      const life = 1 - smooth(age / lifetime);
-      const wave = Math.sin(age * .009) * delayed.speed * 8;
-      const x = index ? delayed.x + delayed.nx * wave : wake.x;
-      const y = index ? delayed.y + delayed.ny * wave : wake.y;
-      const size = 1 - index * .18;
-      lens.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${wake.angle}rad) scale(${size * (1 + tip.speed * .25 * strength)}, ${size})`;
-      lens.style.opacity = String(life * (.5 + tip.speed * .12) * (1 - index * .23));
-    });
-    pending = requestAnimationFrame(draw);
+    if (springs.size) pending = requestAnimationFrame(frame);
+    else lastFrame = 0;
   }
 
-  function clearHover() {
-    clearControl();
-    currentSurface?.removeAttribute("data-pointer-active");
-    currentSurface = undefined;
-    spotlight.classList.remove("has-spotlight");
+  function resetHeading() {
+    activeHeading?.removeAttribute("data-heading-active");
+    activeHeading = undefined;
   }
 
   function reset() {
-    clearHover();
-    points.length = 0;
-    sample = undefined;
-    wake = undefined;
-    for (const lens of lenses) lens.style.opacity = "0";
+    resetHeading();
+    lastPointer = undefined;
+    for (const element of springs.keys()) {
+      for (const key of ["--nudge-x", "--nudge-y", "--nudge-angle"]) element.style.removeProperty(key);
+      element.classList.remove("pointer-spring");
+    }
+    springs.clear();
     if (pending) cancelAnimationFrame(pending);
     pending = 0;
+    lastFrame = 0;
   }
 
-  window.addEventListener("pointermove", (event) => {
+  window.addEventListener("pointermove", event => {
     if (reducedMotion.matches || !pointer.matches || event.pointerType === "touch" || !(event.target instanceof Element)) return;
-    sample = { x: event.clientX, y: event.clientY, target: event.target };
-    if (!pending) pending = requestAnimationFrame(draw);
+    const heading = event.target.closest(".reactive-heading");
+    if (heading !== activeHeading) {
+      resetHeading();
+      activeHeading = heading;
+      heading?.setAttribute("data-heading-active", "");
+    }
+    if (heading) {
+      const bounds = heading.getBoundingClientRect();
+      heading.style.setProperty("--sheen-x", (event.clientX - bounds.left).toFixed(2) + "px");
+      heading.style.setProperty("--sheen-y", (event.clientY - bounds.top).toFixed(2) + "px");
+    }
+
+    const previous = lastPointer;
+    lastPointer = { x: event.clientX, y: event.clientY, time: event.timeStamp };
+    if (!previous || event.timeStamp - previous.time > 120) return;
+    const dx = clamp((event.clientX - previous.x) * .07, -1.2, 1.2);
+    const dy = clamp((event.clientY - previous.y) * .07, -1.2, 1.2);
+    const targets = new Set([
+      event.target.closest("a:not(.skip), button:not(.expert-toggle)"),
+      event.target.closest(".studio, .session, .expert-card, .portrait, .workflow, input, textarea, select")
+    ]);
+    targets.delete(null);
+    for (const element of targets) {
+      const spring = springs.get(element) || { x: 0, y: 0, vx: 0, vy: 0 };
+      spring.vx = clamp(spring.vx + dx, -2, 2);
+      spring.vy = clamp(spring.vy + dy, -2, 2);
+      springs.set(element, spring);
+      element.classList.add("pointer-spring");
+    }
+    if (springs.size && !pending) pending = requestAnimationFrame(frame);
   }, { passive: true });
-  window.addEventListener("resize", reset, { passive: true });
+
   window.addEventListener("blur", reset);
+  window.addEventListener("resize", reset, { passive: true });
   document.documentElement.addEventListener("pointerleave", reset);
-  document.addEventListener("scroll", clearHover, { passive: true });
+  document.addEventListener("scroll", reset, { passive: true });
   reducedMotion.addEventListener("change", reset);
   pointer.addEventListener("change", reset);
 }

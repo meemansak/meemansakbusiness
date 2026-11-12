@@ -8,7 +8,7 @@
 
 ## Design and behavior
 
-- Use the existing typography and palette as the baseline for incremental edits. The site uses local DM Sans and Instrument Serif fonts, with warm whites, espresso and tan defined in `site.css`. The cursor effect must be transparent, with no colored trail. Text hover glow must spread and fade smoothly beyond letter edges. Blue is reserved for the scroll line. Use references as inspiration for original work.
+- Use the existing typography and palette as the baseline for incremental edits. The site uses local DM Sans and Instrument Serif fonts, with warm whites, espresso and tan defined in `site.css`. Use a minimal white reflective hover only on main h1 and h2 headings. Keep the highlight small with softly fading edges. Buttons, boxes and interactive elements should have subtle movement-driven spring motion. Avoid a global cursor trail or broad blur. Blue is reserved for the scroll line. Use references as inspiration for original work.
 - Preserve responsive layouts, keyboard access, and the existing reduced-motion behavior when changing navigation, cards or animations.
 - Edit page copy, business links and the inquiry address in `index.html`. Keep the inquiry form's email-draft workflow unless the user requests a different flow. Set session fees in `site.js` when the user confirms the amounts. Keep the current portrait until a replacement is provided. Keep YouTube videos and links off the site.
 
