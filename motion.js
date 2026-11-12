@@ -72,31 +72,25 @@ function setupPointerEffects(reducedMotion) {
   const pointer = matchMedia("(any-pointer: fine)");
   const spotlight = document.querySelector("[data-spotlight]");
   const title = spotlight.querySelector(".glow-title");
-  const canvas = document.createElement("canvas");
-  canvas.className = "pointer-ink";
-  canvas.setAttribute("aria-hidden", "true");
-  const context = canvas.getContext("2d");
-  if (!context) return;
-  const lens = document.createElement("div");
-  lens.className = "pointer-lens";
-  lens.setAttribute("aria-hidden", "true");
-  document.body.append(lens, canvas);
+  const lenses = Array.from({ length: 3 }, () => {
+    const lens = document.createElement("div");
+    lens.className = "pointer-lens";
+    lens.setAttribute("aria-hidden", "true");
+    document.body.append(lens);
+    return lens;
+  });
+  const titleLight = title.querySelector(".glow-title-light");
+  const titleHalo = titleLight.cloneNode(true);
+  titleHalo.classList.add("glow-title-halo");
+  title.append(titleHalo);
 
   const points = [];
   const lifetime = 580;
-  let scale = 1;
   let pending = 0;
   let sample;
   let currentControl;
   let currentSurface;
   let wake;
-
-  function resize() {
-    scale = Math.min(devicePixelRatio || 1, 1.25);
-    canvas.width = Math.ceil(innerWidth * scale);
-    canvas.height = Math.ceil(innerHeight * scale);
-    context.setTransform(scale, 0, 0, scale, 0, 0);
-  }
 
   function clearControl() {
     if (!currentControl) return;
@@ -151,10 +145,9 @@ function setupPointerEffects(reducedMotion) {
     if (sample) updatePointer(sample, time);
     sample = undefined;
     while (points.length && time - points[0].time > lifetime) points.shift();
-    context.clearRect(0, 0, canvas.width / scale, canvas.height / scale);
     const tip = points.at(-1);
     if (!tip) {
-      lens.style.opacity = "0";
+      for (const lens of lenses) lens.style.opacity = "0";
       wake = undefined;
       return;
     }
@@ -165,28 +158,17 @@ function setupPointerEffects(reducedMotion) {
       wake.angle += Math.atan2(Math.sin(angle - wake.angle), Math.cos(angle - wake.angle)) * .22;
     }
     const strength = 1 - smooth((time - tip.time) / lifetime);
-    lens.style.transform = `translate3d(${wake.x}px, ${wake.y}px, 0) rotate(${wake.angle}rad) scaleX(${1 + tip.speed * .32 * strength})`;
-    lens.style.opacity = String(strength * (.44 + tip.speed * .16));
-    context.lineCap = "round";
-    const ribbon = points.map(point => {
-      const age = time - point.time;
-      const life = 1 - age / lifetime;
-      const wave = Math.sin(point.time * .026 + age * .008) * (5 + point.speed * 9) * Math.sin(Math.PI * life);
-      return { x: point.x + point.nx * wave, y: point.y + point.ny * wave, life, speed: point.speed };
+    lenses.forEach((lens, index) => {
+      const delayed = points[Math.max(0, points.length - 1 - index * 4)];
+      const age = time - delayed.time;
+      const life = 1 - smooth(age / lifetime);
+      const wave = Math.sin(age * .009) * delayed.speed * 8;
+      const x = index ? delayed.x + delayed.nx * wave : wake.x;
+      const y = index ? delayed.y + delayed.ny * wave : wake.y;
+      const size = 1 - index * .18;
+      lens.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${wake.angle}rad) scale(${size * (1 + tip.speed * .25 * strength)}, ${size})`;
+      lens.style.opacity = String(life * (.5 + tip.speed * .12) * (1 - index * .23));
     });
-    for (const [width, alpha] of [[27, .07], [13, .12], [4, .23]]) {
-      for (let index = 1; index < ribbon.length; index++) {
-        const point = ribbon[index];
-        const previous = ribbon[index - 1];
-        const before = ribbon[index - 2] || previous;
-        context.beginPath();
-        context.moveTo((before.x + previous.x) / 2, (before.y + previous.y) / 2);
-        context.quadraticCurveTo(previous.x, previous.y, (previous.x + point.x) / 2, (previous.y + point.y) / 2);
-        context.strokeStyle = `rgba(72, 112, 255, ${point.life ** 2 * alpha})`;
-        context.lineWidth = Math.max(.6, width * point.life * (1 + point.speed * .22));
-        context.stroke();
-      }
-    }
     pending = requestAnimationFrame(draw);
   }
 
@@ -202,10 +184,9 @@ function setupPointerEffects(reducedMotion) {
     points.length = 0;
     sample = undefined;
     wake = undefined;
-    lens.style.opacity = "0";
+    for (const lens of lenses) lens.style.opacity = "0";
     if (pending) cancelAnimationFrame(pending);
     pending = 0;
-    context.clearRect(0, 0, canvas.width / scale, canvas.height / scale);
   }
 
   window.addEventListener("pointermove", (event) => {
@@ -213,13 +194,12 @@ function setupPointerEffects(reducedMotion) {
     sample = { x: event.clientX, y: event.clientY, target: event.target };
     if (!pending) pending = requestAnimationFrame(draw);
   }, { passive: true });
-  window.addEventListener("resize", resize, { passive: true });
+  window.addEventListener("resize", reset, { passive: true });
   window.addEventListener("blur", reset);
   document.documentElement.addEventListener("pointerleave", reset);
   document.addEventListener("scroll", clearHover, { passive: true });
   reducedMotion.addEventListener("change", reset);
   pointer.addEventListener("change", reset);
-  resize();
 }
 
 export function setupMotion(reducedMotion) {
