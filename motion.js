@@ -70,11 +70,6 @@ function setupScrollMotion(reducedMotion) {
 
 function setupPointerEffects(reducedMotion) {
   const pointer = matchMedia("(any-pointer: fine)");
-  const cursor = document.createElement("div");
-  cursor.className = "cursor-ripple";
-  cursor.setAttribute("aria-hidden", "true");
-  document.body.append(cursor);
-  let cursorTimer;
   const headings = [...document.querySelectorAll("main h1, main h2")];
   for (const heading of headings) {
     heading.querySelectorAll(".glow-title-light").forEach(layer => layer.remove());
@@ -122,8 +117,6 @@ function setupPointerEffects(reducedMotion) {
 
   function reset() {
     resetHeading();
-    cursor.classList.remove("is-moving");
-    clearTimeout(cursorTimer);
     lastPointer = undefined;
     for (const element of springs.keys()) {
       for (const key of ["--nudge-x", "--nudge-y", "--nudge-angle"]) element.style.removeProperty(key);
@@ -137,14 +130,6 @@ function setupPointerEffects(reducedMotion) {
 
   window.addEventListener("pointermove", event => {
     if (reducedMotion.matches || !pointer.matches || event.pointerType === "touch" || !(event.target instanceof Element)) return;
-    const deltaX = lastPointer ? event.clientX - lastPointer.x : 0;
-    const deltaY = lastPointer ? event.clientY - lastPointer.y : 0;
-    const speed = Math.min(1, Math.hypot(deltaX, deltaY) / 24);
-    const angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
-    cursor.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0) rotate(${angle}deg) scaleX(${1 + speed * .45})`;
-    cursor.classList.add("is-moving");
-    clearTimeout(cursorTimer);
-    cursorTimer = setTimeout(() => cursor.classList.remove("is-moving"), 180);
     const heading = event.target.closest(".reactive-heading");
     if (heading !== activeHeading) {
       resetHeading();
@@ -163,8 +148,8 @@ function setupPointerEffects(reducedMotion) {
     const dx = clamp((event.clientX - previous.x) * .07, -1.2, 1.2);
     const dy = clamp((event.clientY - previous.y) * .07, -1.2, 1.2);
     const targets = new Set([
-      event.target.closest("a:not(.skip), button:not(.expert-toggle)"),
-      event.target.closest(".studio, .session, .expert-card, .portrait, .workflow, input, textarea, select")
+      null,
+      event.target.closest(".studio, .portrait")
     ]);
     targets.delete(null);
     for (const element of targets) {

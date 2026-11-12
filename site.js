@@ -1,4 +1,5 @@
-import { setupMotion } from "./motion.js?v=8";
+import { setupRefraction } from "./refraction.js?v=9";
+import { setupMotion } from "./motion.js?v=9";
 
 // Set the session fees when they are confirmed.
 const settings = {
@@ -109,15 +110,6 @@ for (const event of ["scroll", "resize"]) window.addEventListener(event, onScrol
 reducedMotion.addEventListener("change", onScroll);
 onScroll();
 
-let startingScene = false;
-function startScene() {
-  if (startingScene || reducedMotion.matches) return;
-  startingScene = true;
-  import("./sculpture.js?v=3")
-    .then(({ mountSculpture }) => mountSculpture(reducedMotion))
-    .catch(() => { startingScene = false; });
-}
-reducedMotion.addEventListener("change", startScene);
-startScene();
-
 setupMotion(reducedMotion);
+
+setupRefraction(reducedMotion);
