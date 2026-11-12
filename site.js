@@ -1,4 +1,4 @@
-import { setupMotion } from "./motion.js?v=7";
+import { setupMotion } from "./motion.js?v=8";
 
 // Set the session fees when they are confirmed.
 const settings = {
