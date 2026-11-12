@@ -1,5 +1,4 @@
-import { setupRefraction } from "./refraction.js?v=9";
-import { setupMotion } from "./motion.js?v=9";
+import { setupMotion } from "./motion.js?v=10";
 
 // Set the session fees when they are confirmed.
 const settings = {
@@ -93,9 +92,13 @@ for (const section of document.querySelectorAll("[data-reveal]")) {
   reveal.observe(section);
 }
 
+const hero = document.querySelector(".portrait-hero");
 let pendingScroll = false;
-function updateWorkflow() {
+function updateScrollEffects() {
   pendingScroll = false;
+  const heroProgress = Math.min(1, Math.max(0, -hero.getBoundingClientRect().top / hero.offsetHeight));
+  const blur = reducedMotion.matches ? 22 : 22 - heroProgress * 16;
+  hero.style.setProperty("--hero-blur", blur.toFixed(2) + "px");
   const { top, height } = workflow.getBoundingClientRect();
   const progress = reducedMotion.matches ? .5 : Math.max(0, Math.min(1, (innerHeight - top) / (innerHeight + height)));
   workflow.style.setProperty("--scene-x", ((progress - .5) * 74) + "px");
@@ -104,12 +107,10 @@ function updateWorkflow() {
 function onScroll() {
   if (pendingScroll) return;
   pendingScroll = true;
-  requestAnimationFrame(updateWorkflow);
+  requestAnimationFrame(updateScrollEffects);
 }
 for (const event of ["scroll", "resize"]) window.addEventListener(event, onScroll, { passive: true });
 reducedMotion.addEventListener("change", onScroll);
 onScroll();
 
 setupMotion(reducedMotion);
-
-setupRefraction(reducedMotion);
