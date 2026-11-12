@@ -1,5 +1,9 @@
 # Meemansak Bharti
 
-Public preview of Meemansak Bharti’s one-on-one consulting website.
+Personal site for business consulting, practical AI, automation, and web and app development.
 
-The site is buildless. Publish the root of the main branch with GitHub Pages. Update the public inquiry email and session fees in site.js when those details are ready.
+[Live site](https://meemansak.github.io/meemansakbusiness/)
+
+GitHub Pages publishes the root of the main branch. Edit the copy, video links, and inquiry address in `index.html`. The inquiry form prepares an email draft in the visitor’s mail app. Set session fees in `site.js`.
+
+The portrait is from Wedditors. Film previews link to the original videos on the Wedditors and Meemansak Bharti YouTube channels.

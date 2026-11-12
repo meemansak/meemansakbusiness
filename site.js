@@ -1,6 +1,7 @@
-// Add the approved fees and a public inquiry address when they are ready.
+import { setupMotion } from "./motion.js?v=2";
+
+// Set the session fees when they are confirmed.
 const settings = {
-  inquiryEmail: "",
   fees: {
     "Discovery call": "",
     "Strategy session": "",
@@ -31,21 +32,6 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-const serviceArt = document.querySelector(".service-art");
-const serviceLabels = {
-  business: ["Offer", "Audience", "First client"],
-  production: ["Brief", "Edit", "Delivery"],
-  ai: ["Input", "AI draft", "Human review"],
-};
-
-for (const detail of document.querySelectorAll(".services-list details")) {
-  detail.addEventListener("toggle", () => {
-    if (!detail.open) return;
-    serviceArt.dataset.mode = detail.dataset.art;
-    serviceArt.querySelector("figcaption").textContent = serviceLabels[detail.dataset.art].join("   →   ");
-  });
-}
-
 const steps = [
   ["A new inquiry comes in.", "Capture the goal, budget, timeline, and any missing information in one place."],
   ["AI prepares a first draft.", "Use the brief to draft a reply and flag the questions you still need to ask."],
@@ -69,23 +55,16 @@ controls.addEventListener("click", (event) => {
 
 const form = document.querySelector("#inquiry");
 const send = form.querySelector("button[type=submit]");
-const status = form.querySelector(".form-status");
-const draft = form.querySelector(".draft");
 send.hidden = false;
-if (settings.inquiryEmail) {
-  send.firstChild.textContent = "Open email draft ";
-  form.querySelector(".form-note").textContent = "This opens a draft in your email app for you to review and send.";
-}
 for (const price of document.querySelectorAll("[data-fee]")) {
   if (settings.fees[price.dataset.fee]) price.textContent = settings.fees[price.dataset.fee];
 }
-for (const link of document.querySelectorAll("[data-session], [data-focus]")) {
+for (const link of document.querySelectorAll("[data-session]")) {
   link.addEventListener("click", () => {
-    if (link.dataset.session) form.elements.session.value = link.dataset.session;
-    if (link.dataset.focus) form.elements.focus.value = link.dataset.focus;
+    form.elements.session.value = link.dataset.session;
   });
 }
-form.addEventListener("submit", async (event) => {
+form.addEventListener("submit", (event) => {
   event.preventDefault();
   const values = new FormData(form);
   const subject = ["Consulting inquiry", values.get("session")].filter(Boolean).join(" — ");
@@ -97,19 +76,8 @@ form.addEventListener("submit", async (event) => {
     "",
     values.get("brief"),
   ].join("\n");
-  if (settings.inquiryEmail) {
-    window.location.href = "mailto:" + settings.inquiryEmail + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
-    return;
-  }
-  draft.value = subject + "\n\n" + body;
-  draft.hidden = false;
-  status.hidden = false;
-  try {
-    await navigator.clipboard.writeText(draft.value);
-    status.textContent = "Draft copied.";
-  } catch {
-    status.textContent = "Your draft is ready below. Select it to copy.";
-  }
+  const email = document.querySelector(".contact-copy a").getAttribute("href");
+  window.location.href = email + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
 });
 
 const reveal = new IntersectionObserver((entries) => {
@@ -151,3 +119,5 @@ function startScene() {
 }
 reducedMotion.addEventListener("change", startScene);
 startScene();
+
+setupMotion(reducedMotion);
