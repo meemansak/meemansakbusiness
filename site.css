@@ -115,7 +115,7 @@ h2 em{font-size:1.13em;color:#77644f}
   .approach-inner,.contact-panel{grid-template-columns:1fr 1fr;gap:23px}
 }
 @media(max-width:650px){
-  :root{--gutter:16px;--radius:18px}
+  :root{--gutter:clamp(18px,5vw,28px);--radius:18px}
   .header{height:auto;min-height:66px;gap:8px;flex-wrap:wrap}
   .header .brand{font-size:1.01rem}
   .header-cta{padding:8px 10px;gap:5px;font-size:.77rem}
@@ -132,7 +132,13 @@ h2 em{font-size:1.13em;color:#77644f}
   .hero-index{font-size:.62rem;padding-block:12px;gap:5px}
   .hero-index b{margin-inline:1px}
   .hero-index a{white-space:nowrap}
-  .approach-inner,.session-grid,.contact-panel{grid-template-columns:1fr}
+  .approach-inner,.session-grid,.contact-panel,.field-row{grid-template-columns:minmax(0,1fr)}
+  .section{padding-block:clamp(52px,12vw,72px)}
+  .section-heading{margin-bottom:26px}
+  .contact-panel{padding:clamp(18px,5vw,28px);gap:25px}
+  .contact-copy>p:not(.eyebrow){margin-top:15px}
+  .inquiry :is(input,textarea,select){min-height:44px;font-size:1rem}
+  .inquiry .pill,.session-link{min-height:44px}
   .split{display:block}
   .split>p{margin-top:16px}
   .session{min-height:0}
@@ -252,9 +258,13 @@ main :is(h1,h2){transition:text-shadow .28s ease}
   .hero-actions .pill{font-size:.77rem;padding:10px 12px;gap:9px}
   .footer-links{gap:11px 17px}
 }
-@media(max-width:370px){
+@media(max-width:460px){
   .expert-deck{grid-template-columns:1fr}
-  .expert-card{min-height:220px}
+  .expert-card{min-height:0}
+  .expert-card-inner{position:relative}
+  .expert-face{position:relative;inset:auto;padding:20px 20px 44px}
+  .expert-face h3{max-width:none;font-size:1.5rem}
+  .expert-face li{font-size:.9rem;line-height:1.45}
 }
 @media(prefers-reduced-motion:reduce){
   .motion-active .ink-path path{stroke-dashoffset:0}
@@ -278,17 +288,19 @@ main :is(h1,h2){transition:text-shadow .28s ease}
 .hero-scroll{font-size:.8rem;color:#e7ddd3}
 @media(max-width:650px){
  .header{padding-top:12px;justify-content:space-between}
- .header nav{background:#1d1511f2;border-radius:12px;margin-top:8px;padding:18px 10px}
+ .header .pill{min-height:44px}
+ .header nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px;background:#1d1511f2;border-radius:12px;margin-top:8px;padding:8px 14px}
+ .header nav a{display:flex;align-items:center;min-height:44px;padding-inline:6px}
  .header .menu-button{order:0}
- .portrait-hero{min-height:660px;height:100svh}
+ .portrait-hero{min-height:100svh;height:auto}
  .hero-photo{object-position:52% 18%}
- .hero-intro{padding-top:clamp(145px,26svh,210px)}
- .portrait-hero h1{font-size:15vw}
- .hero-surname{font-size:46px}
- .hero-bottom{flex-wrap:wrap;padding-block:34px 26px;gap:20px}
- .hero-bottom p{width:100%}
- .hero-intro .eyebrow{font-size:.58rem;letter-spacing:.12em}
- .hero-scroll{font-size:.7rem}
+ .hero-intro{padding-top:clamp(126px,28svh,240px)}
+ .portrait-hero h1{font-size:clamp(2.75rem,15vw,5.8rem)}
+ .hero-surname{font-size:clamp(2rem,9vw,3rem);margin-top:8px}
+ .hero-bottom{display:grid;justify-content:start;justify-items:start;padding-block:32px 20px;gap:12px}
+ .hero-bottom p{max-width:32ch}
+ .hero-intro .eyebrow{font-size:.63rem;letter-spacing:.12em;margin-bottom:18px}
+ .hero-scroll{display:flex;align-items:center;min-height:44px;font-size:.8rem}
 }
 
 
