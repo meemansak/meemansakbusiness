@@ -2,9 +2,10 @@
 
 ## Working across devices
 
-- Before working on the website, read `HANDOFF.md`, run `git status --short --branch` and `git log -5 --oneline`, and check the recorded branch and progress against the checkout. If they differ, use the Git history and files to establish the current state. Preserve existing local work.
+- Before working on the website, run `git status --short --branch`. On a clean `main` checkout, pull with `git pull --ff-only origin main`. Read the latest `HANDOFF.md` and run `git log -5 --oneline` to check the recorded progress against the checkout. Preserve local work and inspect any divergence before pulling or pushing.
 - Update `HANDOFF.md` before replying to each website work prompt, including when work is partial or blocked. Record the branch or baseline commit, completed work, work in progress, verification performed, blockers or unverified items, and one concrete next step. Replace stale status and keep decisions that still affect future work.
 - Keep the handoff update with the related changes when committing them. Before switching devices, push the relevant branch and pull that same branch on the other device. Follow the user's commit and push instructions.
+- When editing homepage copy, keep the page title and meta description aligned with the services actually described on the page. Use concrete examples and keep the canonical URL aligned with the production homepage.
 
 ## Design and behavior
 
